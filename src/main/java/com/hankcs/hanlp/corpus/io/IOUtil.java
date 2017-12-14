@@ -178,13 +178,14 @@ public class IOUtil
             if (IOAdapter == null) return readBytesFromFileInputStream(new FileInputStream(path));
 
             InputStream is = IOAdapter.open(path);
-            if (is instanceof FileInputStream)
+            if(is == null){
+                return null;
+            }
+            else if (is instanceof FileInputStream)
                 return readBytesFromFileInputStream((FileInputStream) is);
             else
                 return readBytesFromOtherInputStream(is);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.warning("读取" + path + "时发生异常" + e);
         }
 
@@ -278,6 +279,7 @@ public class IOUtil
         }
 
         data.flush();
+        is.close();
 
         return data.toByteArray();
     }
