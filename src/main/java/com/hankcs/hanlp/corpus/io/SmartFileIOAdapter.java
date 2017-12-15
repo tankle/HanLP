@@ -5,6 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import static com.hankcs.hanlp.utility.Predefine.logger;
+
 /**
  * 智能搜索文件
  * Created by IDEA
@@ -31,9 +33,12 @@ public class SmartFileIOAdapter implements IIOAdapter {
             return new FileInputStream(file);
         }
 
+        // 尝试从根目录下读取文件
         URI uri = getUri(path);
-        if (uri == null){
-            return null;
+        // 尝试从jar包中读取资源文件
+        if (uri == null || uri.getPath() == null){
+            logger.warning("Try get file from jar " + path);
+            return IOUtil.getResourceAsStream("/" + path);
         }
 
         return new FileInputStream(uri.getPath());
@@ -76,11 +81,13 @@ public class SmartFileIOAdapter implements IIOAdapter {
     private URI getUri(String path) {
         URI uri ;
         try {
+            logger.info("read from: " + path);
             URL url = this.getClass().getClassLoader().getResource(path);
             if(url == null){
                 return null;
             }
             uri = url.toURI();
+            logger.info("the whole path: " + uri.getPath());
         } catch (URISyntaxException e) {
             return null;
         }
